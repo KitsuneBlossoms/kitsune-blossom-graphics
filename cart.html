@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#090609">
 <title>Your Cart | Kitsune Blossom Graphics</title>
+
 <style>
 html,body{min-height:100%;background:#090609}
 :root{--pink:#ff168b;--pink2:#ff79ba;--black:#090609;--panel:#171018;--white:#fff7fc;--muted:#cbbbc6}
@@ -32,6 +33,9 @@ h1{font-size:clamp(30px,5vw,44px);text-transform:uppercase}
 .hint{color:var(--muted);font-size:12px}
 .button:disabled{opacity:.5;cursor:wait}
 .empty{text-align:center;padding:45px 15px;color:var(--muted)}
+#checkout-form{margin-top:18px}
+.checkout-wrap{margin-top:18px}
+
 @media(max-width:600px){
 .item{grid-template-columns:65px 1fr}
 .item img{width:65px;height:65px}
@@ -39,111 +43,313 @@ h1{font-size:clamp(30px,5vw,44px);text-transform:uppercase}
 .nav,main{padding:14px}
 }
 </style>
+
 <script src="https://js.stripe.com/dahlia/stripe.js"></script>
-<style>
-#checkout-form{margin-top:18px}
-.checkout-wrap{margin-top:18px}
-</style>
 </head>
+
 <body>
 <div class="topline"></div>
+
 <header>
 <div class="nav">
 <a class="brand" href="index.html">Kitsune <span>Blossom</span> Graphics</a>
 <a href="shop.html">Continue shopping</a>
 </div>
 </header>
+
 <main>
 <h1>Your cart 🌸</h1>
+
 <div class="panel" id="cart">
 <div class="empty">Loading your cart…</div>
 </div>
+
 <div class="panel totals" id="summary" hidden>
-<div class="line"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div>
-<div class="line"><span>Shipping</span><strong id="shipping">Calculated at checkout</strong></div>
-<p class="hint">Decal-only orders under $50 ship for $5. Other orders under $50 ship for $10. Orders of $50 or more ship free. US shipping only.</p>
+<div class="line">
+<span>Subtotal</span>
+<strong id="subtotal">$0.00</strong>
+</div>
+
+<div class="line">
+<span>Shipping</span>
+<strong id="shipping">Calculated at checkout</strong>
+</div>
+
+<p class="hint">
+Decal-only orders under $50 ship for $5.
+Other orders under $50 ship for $10.
+Orders of $50 or more ship free.
+US shipping only.
+</p>
+
 <button class="button" id="checkout">Secure checkout</button>
+
 <p class="hint" id="message" role="status"></p>
+
 <div id="checkout-form" class="checkout-wrap"></div>
 </div>
 </main>
+
 <script>
 (function(){
- const cartBox=document.getElementById('cart'),summary=document.getElementById('summary'),msg=document.getElementById('message');
- const money=n=>Number(n||0).toLocaleString('en-US',{style:'currency',currency:'USD'});
- const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- function getCart(){try{return JSON.parse(localStorage.getItem('kbg_cart')||'[]')}catch(e){return []}}
- function saveCart(c){localStorage.setItem('kbg_cart',JSON.stringify(c))}
- function showEmpty(){cartBox.innerHTML='<div class="empty"><h2>Your cart is waiting for a little magic. 🌸</h2><a href="shop.html">Browse the collection</a></div>';summary.hidden=true;}
- function draw(items){
-   if(!items.length){showEmpty();return;}
-   let subtotal=0,decalOnly=true;
-   cartBox.innerHTML=items.map((x,i)=>{
-     const p=x.product||x;
-     const unit=x.size?({Small:5,Medium:10,Large:15}[x.size]||Number(p.price)):Number(p.price);
-     const qty=Math.max(1,Math.min(99,Number(x.quantity)||1));
-     subtotal+=unit*qty;
-     if(String(p.category||'').toLowerCase()!=='decals')decalOnly=false;
-     return `<div class="item"><img src="${esc(p.image_url||'')}" alt=""><div><strong>${esc(p.name||'Product')}${x.size?' — '+esc(x.size):''}</strong><div class="muted">${x.color?'Color: '+esc(x.color):''} ${x.notes?' · '+esc(x.notes):''}</div><div class="price">${money(unit)} each</div><button class="remove" data-remove="${i}">Remove</button></div><div><label class="muted">Qty <input class="qty" type="number" min="1" max="99" value="${qty}" data-qty="${i}"></label></div></div>`;
-   }).join('');
-   document.getElementById('subtotal').textContent=money(subtotal);
-   document.getElementById('shipping').textContent=subtotal>=50?'FREE':(decalOnly?'$5.00':'$10.00');
-   summary.hidden=false;
- }
- async function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error('Could not load product information. Please check your connection and refresh.'));document.head.appendChild(script);});}
- async function loadMissing(items){
-   const missing=items.filter(x=>!x.name||x.price===undefined||!x.category);
-   if(!missing.length){draw(items);return;}
-   if(!window.supabase) await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
-   if(typeof SUPABASE_URL==='undefined'||typeof SUPABASE_PUBLISHABLE_KEY==='undefined') await loadScript('supabase-config.js');
-   const ids=[...new Set(missing.map(x=>x.id))];
-   const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-   const {data,error}=await db.from('products').select('id,name,price,category,image_url,available,published').in('id',ids);
-   if(error)throw error;
-   const lookup=new Map((data||[]).map(p=>[String(p.id),p]));
-   const merged=items.map(x=>{const p=lookup.get(String(x.id));return (x.name&&x.price!==undefined&&x.category)?x:(p?{...p,...x}:null)}).filter(Boolean);
-   if(merged.length!==items.length)saveCart(merged);
-   draw(merged);
- }
- cartBox.addEventListener('click',e=>{
-   const b=e.target.closest('[data-remove]');
-   if(!b)return;
-   const c=getCart();
-   c.splice(Number(b.dataset.remove),1);
-   saveCart(c);
-   draw(c.map(x=>x.product||x));
+
+ const cartBox=document.getElementById('cart');
+ const summary=document.getElementById('summary');
+ const msg=document.getElementById('message');
+
+ const money=n=>Number(n||0).toLocaleString('en-US',{
+   style:'currency',
+   currency:'USD'
  });
- cartBox.addEventListener('change',e=>{
-   const i=e.target.dataset.qty;
-   if(i===undefined)return;
-   const c=getCart();
-   c[Number(i)].quantity=Math.max(1,Math.min(99,Number(e.target.value)||1));
-   saveCart(c);
-   loadMissing(c).catch(showError);
- });
- function showError(e){
-   console.error('Cart display error:',e);
-   cartBox.innerHTML='<div class="empty">Something interrupted the cart from loading. Please refresh the page or return to the shop and try again.</div>';
+
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
+   '&':'&amp;',
+   '<':'&lt;',
+   '>':'&gt;',
+   '"':'&quot;',
+   "'":'&#39;'
+ }[c]));
+
+ function getCart(){
+   try{
+     return JSON.parse(localStorage.getItem('kbg_cart')||'[]');
+   }catch(e){
+     return [];
+   }
+ }
+
+ function saveCart(c){
+   localStorage.setItem('kbg_cart',JSON.stringify(c));
+ }
+
+ function showEmpty(){
+   cartBox.innerHTML=
+     '<div class="empty"><h2>Your cart is waiting for a little magic. 🌸</h2><a href="shop.html">Browse the collection</a></div>';
+
    summary.hidden=true;
  }
+
+ function draw(items){
+
+   if(!items.length){
+     showEmpty();
+     return;
+   }
+
+   let subtotal=0;
+   let decalOnly=true;
+
+   cartBox.innerHTML=items.map((x,i)=>{
+
+     const p=x.product||x;
+
+     const unit=x.size
+       ?({Small:5,Medium:10,Large:15}[x.size]||Number(p.price))
+       :Number(p.price);
+
+     const qty=Math.max(1,Math.min(99,Number(x.quantity)||1));
+
+     subtotal+=unit*qty;
+
+     if(String(p.category||'').toLowerCase()!=='decals'){
+       decalOnly=false;
+     }
+
+     return `
+       <div class="item">
+         <img src="${esc(p.image_url||'')}" alt="">
+
+         <div>
+           <strong>${esc(p.name||'Product')}${x.size?' — '+esc(x.size):''}</strong>
+
+           <div class="muted">
+             ${x.color?'Color: '+esc(x.color):''}
+             ${x.notes?' · '+esc(x.notes):''}
+           </div>
+
+           <div class="price">${money(unit)} each</div>
+
+           <button class="remove" data-remove="${i}">
+             Remove
+           </button>
+         </div>
+
+         <div>
+           <label class="muted">
+             Qty
+             <input class="qty" type="number" min="1" max="99"
+               value="${qty}" data-qty="${i}">
+           </label>
+         </div>
+       </div>
+     `;
+   }).join('');
+
+   document.getElementById('subtotal').textContent=money(subtotal);
+
+   document.getElementById('shipping').textContent=
+     subtotal>=50?'FREE':(decalOnly?'$5.00':'$10.00');
+
+   summary.hidden=false;
+ }
+
+ async function loadScript(src){
+
+   return new Promise((resolve,reject)=>{
+
+     const script=document.createElement('script');
+
+     script.src=src;
+     script.onload=resolve;
+
+     script.onerror=()=>reject(
+       new Error('Could not load product information. Please check your connection and refresh.')
+     );
+
+     document.head.appendChild(script);
+   });
+ }
+
+ async function loadMissing(items){
+
+   const missing=items.filter(x=>
+     !x.name||x.price===undefined||!x.category
+   );
+
+   if(!missing.length){
+     draw(items);
+     return;
+   }
+
+   if(!window.supabase){
+     await loadScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2');
+   }
+
+   if(
+     typeof SUPABASE_URL==='undefined'||
+     typeof SUPABASE_PUBLISHABLE_KEY==='undefined'
+   ){
+     await loadScript('supabase-config.js');
+   }
+
+   const ids=[...new Set(missing.map(x=>x.id))];
+
+   const db=window.supabase.createClient(
+     SUPABASE_URL,
+     SUPABASE_PUBLISHABLE_KEY
+   );
+
+   const {data,error}=await db
+     .from('products')
+     .select('id,name,price,category,image_url,available,published')
+     .in('id',ids);
+
+   if(error)throw error;
+
+   const lookup=new Map(
+     (data||[]).map(p=>[String(p.id),p])
+   );
+
+   const merged=items.map(x=>{
+     const p=lookup.get(String(x.id));
+
+     return (
+       x.name&&x.price!==undefined&&x.category
+     )?x:(p?{...p,...x}:null);
+
+   }).filter(Boolean);
+
+   if(merged.length!==items.length){
+     saveCart(merged);
+   }
+
+   draw(merged);
+ }
+
+ cartBox.addEventListener('click',e=>{
+
+   const b=e.target.closest('[data-remove]');
+
+   if(!b)return;
+
+   const c=getCart();
+
+   c.splice(Number(b.dataset.remove),1);
+
+   saveCart(c);
+
+   loadMissing(c).catch(showError);
+ });
+
+ cartBox.addEventListener('change',e=>{
+
+   const i=e.target.dataset.qty;
+
+   if(i===undefined)return;
+
+   const c=getCart();
+
+   c[Number(i)].quantity=Math.max(
+     1,
+     Math.min(99,Number(e.target.value)||1)
+   );
+
+   saveCart(c);
+
+   loadMissing(c).catch(showError);
+ });
+
+ function showError(e){
+
+   console.error('Cart display error:',e);
+
+   cartBox.innerHTML=
+     '<div class="empty">Something interrupted the cart from loading. Please refresh the page or return to the shop and try again.</div>';
+
+   summary.hidden=true;
+ }
+
  document.getElementById('checkout').addEventListener('click',async()=>{
+
    const btn=document.getElementById('checkout');
+
    btn.disabled=true;
+
    msg.textContent='Preparing secure checkout…';
+
    try{
+
      const r=await fetch('/api/create-checkout-session',{
        method:'POST',
-       headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({items:getCart()})
+       headers:{
+         'Content-Type':'application/json'
+       },
+       body:JSON.stringify({
+         items:getCart()
+       })
      });
+
      const data=await r.json();
-     if(!r.ok)throw new Error(data.error||'Checkout could not start.');
-     if(!data.client_secret||!data.publishable_key)throw new Error('Stripe did not return the embedded checkout details.');
+
+     if(!r.ok){
+       throw new Error(data.error||'Checkout could not start.');
+     }
+
+     if(!data.client_secret||!data.publishable_key){
+       throw new Error(
+         'Stripe did not return the embedded checkout details.'
+       );
+     }
+
      const stripe=Stripe(data.publishable_key);
+
      const checkout=await stripe.initCheckoutFormSdk({
+
        clientSecret:data.client_secret,
+
        appearance:{
          theme:'night',
+
          variables:{
            colorPrimary:'#ff168b',
            colorBackground:'#171018',
@@ -154,28 +360,97 @@ h1{font-size:clamp(30px,5vw,44px);text-transform:uppercase}
          }
        }
      });
-     const form=checkout.createForm({layout:'expanded'});
+
+     const form=checkout.createForm({
+       layout:'expanded'
+     });
+
      form.mount('#checkout-form');
-     const actions=await checkout.loadActions();
+
+     const actionsResult=await checkout.loadActions();
+
+     if(actionsResult.type==='error'){
+       throw new Error(
+         actionsResult.error?.message||'Stripe could not load checkout actions.'
+       );
+     }
+
+     const actions=actionsResult.actions;
+
      form.on('confirm',async(event)=>{
-       const result=await actions.confirm({formConfirmEvent:event});
-       if(result?.type==='error'){
-         msg.textContent=result.error?.message||'Payment could not be confirmed.';
+
+       try{
+
+         msg.textContent='Confirming your payment…';
+
+         const result=await actions.confirm({
+           formConfirmEvent:event
+         });
+
+         if(result.type==='error'){
+
+           msg.textContent=
+             result.error?.message||'Payment could not be confirmed.';
+
+           return;
+         }
+
+         if(result.type==='success'){
+
+           localStorage.removeItem('kbg_cart');
+
+           window.location.href='/success.html';
+
+           return;
+         }
+
+         msg.textContent='Please wait while your payment is confirmed.';
+
+       }catch(e){
+
+         console.error('Payment confirmation error:',e);
+
+         msg.textContent=
+           e.message||'Payment confirmation failed.';
        }
      });
+
      msg.textContent='Enter your shipping and payment details below.';
-     document.getElementById('checkout-form').scrollIntoView({behavior:'smooth',block:'start'});
+
+     document.getElementById('checkout-form').scrollIntoView({
+       behavior:'smooth',
+       block:'start'
+     });
+
    }catch(e){
+
+     console.error('Checkout error:',e);
+
      msg.textContent=e.message||'Checkout could not start.';
+
      btn.disabled=false;
    }
  });
- if(new URLSearchParams(location.search).has('cancelled'))msg.textContent='Checkout was canceled. Your cart is still here.';
+
+ if(new URLSearchParams(location.search).has('cancelled')){
+   msg.textContent='Checkout was canceled. Your cart is still here.';
+ }
+
  try{
+
    const c=getCart();
-   if(!Array.isArray(c)||!c.length)showEmpty();
-   else loadMissing(c).catch(showError);
- }catch(e){showError(e);}
+
+   if(!Array.isArray(c)||!c.length){
+     showEmpty();
+   }else{
+     loadMissing(c).catch(showError);
+   }
+
+ }catch(e){
+
+   showError(e);
+ }
+
 })();
 </script>
 </body>
