@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090609">
+  <title>Kitsune Blossom Graphics</title>
+  <style>
+    :root{--pink:#ff168b;--pink2:#ff69b4;--black:#090609;--panel:#151016;--white:#fff7fc;--muted:#cbbbc6}
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;background:var(--black);color:var(--white);font-family:Arial,Helvetica,sans-serif;line-height:1.55}
+    a{color:inherit;text-decoration:none}
+    .topline{height:4px;background:linear-gradient(90deg,#ff168b,#ff9bd0,#fff,#ff168b)}
+    header{position:sticky;top:0;z-index:10;background:rgba(9,6,9,.94);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,22,139,.28)}
+    .nav{max-width:1180px;margin:auto;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+    .brand{font-weight:900;letter-spacing:1.4px;text-transform:uppercase;font-size:15px}
+    .brand span{color:var(--pink)}
+    nav{display:flex;gap:25px;align-items:center;font-size:13px;text-transform:uppercase;letter-spacing:1.3px}
+    nav a:hover{color:var(--pink2)}
+    .nav-cta,.btn{display:inline-block;background:var(--pink);color:#fff;padding:12px 19px;border:1px solid var(--pink);font-weight:800;letter-spacing:1px;text-transform:uppercase;font-size:12px;transition:.2s}
+    .nav-cta:hover,.btn:hover{background:#fff;color:#111;border-color:#fff}
+    .hero{max-width:1440px;margin:0 auto;padding:22px 22px 0}
+    .hero img{display:block;width:100%;height:auto;max-height:490px;object-fit:cover;border:1px solid rgba(255,22,139,.4);box-shadow:0 12px 55px rgba(255,22,139,.13)}
+    .hero-note{text-align:center;padding:19px 12px 30px;color:#f5dce9;letter-spacing:2px;text-transform:uppercase;font-size:12px}
+    .hero-note b{color:var(--pink)}
+    .wrap{max-width:1180px;margin:auto;padding:0 22px}
+    .section{padding:66px 0}
+    .eyebrow{color:var(--pink);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:800}
+    h1,h2,h3,p{margin-top:0}
+    h2{font-size:clamp(28px,4vw,42px);line-height:1.1;margin:9px 0 14px;text-transform:uppercase;letter-spacing:1px}
+    .intro{max-width:650px;color:var(--muted)}
+    .rule{height:1px;background:linear-gradient(90deg,transparent,var(--pink),transparent);margin:12px 0 0}
+    .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+    .tile{background:linear-gradient(145deg,#1b111a,#0e0a0e);border:1px solid #3b1a30;padding:24px;min-height:150px;position:relative;overflow:hidden}
+    .tile:after{content:"✿";position:absolute;right:15px;bottom:-23px;font-size:100px;color:rgba(255,22,139,.09)}
+    .tile h3{font-size:17px;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+    .tile p{font-size:13px;color:var(--muted);margin:0;max-width:260px}
+    .products{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+    .product{background:var(--panel);border:1px solid #392033;padding:22px;display:flex;flex-direction:column;min-height:220px}
+    .product .symbol{font-size:27px;color:var(--pink);margin-bottom:12px}
+    .product h3{margin:0 0 7px;font-size:16px;text-transform:uppercase;letter-spacing:.8px}
+    .price{font-size:22px;font-weight:900;color:var(--pink2);margin:5px 0 13px}
+    .product p{font-size:13px;color:var(--muted);margin-bottom:16px}
+    .product .btn{margin-top:auto;text-align:center;cursor:pointer}
+    .custom{background:linear-gradient(135deg,#180d17,#0b080b 65%);border:1px solid #5b1b43;padding:30px;margin-top:24px}
+    .custom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    label{display:block;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 7px;color:#f8d6e8}
+    input,select,textarea{width:100%;background:#090609;color:white;border:1px solid #5a344c;padding:12px;font:inherit;font-size:14px;border-radius:0}
+    input:focus,select:focus,textarea:focus{outline:1px solid var(--pink);border-color:var(--pink)}
+    textarea{min-height:115px;resize:vertical}
+    .field{margin-bottom:15px}.full{grid-column:1/-1}
+    .hint{font-size:12px;color:var(--muted);margin-top:6px}
+    .submit{cursor:pointer}
+    .about{display:grid;grid-template-columns:1.2fr .8fr;gap:32px;align-items:center}
+    .about-mark{border:1px solid #5b1b43;background:radial-gradient(circle at 50% 45%,rgba(255,22,139,.18),transparent 60%),#100a10;padding:38px;text-align:center}
+    .about-mark .fox{font-size:68px}.about-mark strong{display:block;color:var(--pink);letter-spacing:3px;font-size:19px}
+    footer{border-top:1px solid #3c1a30;padding:28px 22px;text-align:center;color:#bba9b5;font-size:12px}
+    footer b{color:var(--pink)}
+    @media(max-width:760px){nav{gap:12px;font-size:10px}.nav{padding:13px 14px}.nav-cta{display:none}.tiles,.products{grid-template-columns:1fr 1fr}.about{grid-template-columns:1fr}.hero{padding:12px 12px 0}.section{padding:48px 0}}
+    @media(max-width:500px){.brand{font-size:12px}nav{gap:10px}.tiles,.products,.custom-grid{grid-template-columns:1fr}.full{grid-column:auto}.hero img{min-height:145px;object-fit:cover}}
+  </style>
+</head>
+<body>
+  <div class="topline"></div>
+  <header>
+    <div class="nav">
+      <a class="brand" href="#">Kitsune <span>Blossom</span> Graphics</a>
+      <nav aria-label="Main navigation">
+        <a href="shop.html">Shop</a><a href="cart.html">Cart 🛒</a><a href="#custom">Custom orders</a><a href="#about">About</a>
+      </nav>
+      <a class="nav-cta" href="shop.html">Shop collection</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-label="Kitsune Blossom Graphics banner">
+      <img src="assets/kitsune-blossom-banner.jpeg" alt="Kitsune Blossom Graphics — Where Creativity Blooms banner with pink cherry blossoms, a kitsune mask, moon and Japanese temple">
+      <div class="hero-note"><b>Made to bloom.</b> &nbsp; Built to stand out.</div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="eyebrow">Welcome to the shop</div>
+        <h2>Make it yours.</h2>
+        <p class="intro">Custom graphics and accessories made to bring your ideas to life. From decals to drinkware and automotive details, let's create something that stands out.</p>
+        <div class="tiles">
+          <article class="tile"><h3>Custom decals</h3><p>Choose your size, color, and design. Made to match your style.</p></article>
+          <article class="tile"><h3>Custom drinkware</h3><p>Personalized tumblers with a design made just for you.</p></article>
+          <article class="tile"><h3>Automotive style</h3><p>License plate frames, front plates, and custom details for your ride.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="shop" style="background:#100b10;border-top:1px solid #281321;border-bottom:1px solid #281321">
+      <div class="wrap">
+        <div class="eyebrow">The collection</div>
+        <h2>Shop the goods.</h2>
+        <p class="intro">Prices are shown up front. Have a different idea? Send a custom request and we'll work out the details together.</p>
+        <div class="products">
+          <article class="product"><div class="symbol">✿</div><h3>Small decals</h3><div class="price">$5</div><p>Pick your vinyl color and share the design you'd like.</p><a class="btn" href="#custom" data-product="Small decal">Customize</a></article>
+          <article class="product"><div class="symbol">✿</div><h3>Medium decals</h3><div class="price">$10</div><p>A little more room for your custom design.</p><a class="btn" href="#custom" data-product="Medium decal">Customize</a></article>
+          <article class="product"><div class="symbol">✿</div><h3>Large decals</h3><div class="price">$15</div><p>Make a bigger statement with a larger decal.</p><a class="btn" href="#custom" data-product="Large decal">Customize</a></article>
+          <article class="product"><div class="symbol">♡</div><h3>Stainless steel tumbler</h3><div class="price">$20</div><p>Custom drinkware designed around your idea.</p><a class="btn" href="#custom" data-product="Stainless steel tumbler">Customize</a></article>
+          <article class="product"><div class="symbol">♡</div><h3>Big tumbler</h3><div class="price">$30</div><p>A larger custom tumbler with your chosen design.</p><a class="btn" href="#custom" data-product="Big tumbler">Customize</a></article>
+          <article class="product"><div class="symbol">⌁</div><h3>License plate frame</h3><div class="price">$15</div><p>Add a personal touch to your vehicle.</p><a class="btn" href="#custom" data-product="License plate frame">Customize</a></article>
+          <article class="product"><div class="symbol">⌁</div><h3>Custom front plate</h3><div class="price">$15</div><p>Personalized front plate styling for your ride.</p><a class="btn" href="#custom" data-product="Custom front plate">Customize</a></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="custom">
+      <div class="wrap">
+        <div class="eyebrow">Your idea, your way</div>
+        <h2>Request a custom order.</h2>
+        <p class="intro">Tell us what you're imagining. We'll follow up to confirm the design, color, availability, and final details before anything is made.</p>
+        <form class="custom" name="custom-order" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data">
+          <input type="hidden" name="form-name" value="custom-order">
+          <p hidden><label>Don't fill this out: <input name="bot-field"></label></p>
+          <div class="custom-grid">
+            <div class="field"><label for="name">Your name</label><input id="name" name="name" required></div>
+            <div class="field"><label for="email">Email</label><input id="email" name="email" type="email" required></div>
+            <div class="field"><label for="product">What would you like?</label><select id="product" name="product" required><option value="">Choose a product</option><option>Small decal — $5</option><option>Medium decal — $10</option><option>Large decal — $15</option><option>Stainless steel tumbler — $20</option><option>Big tumbler — $30</option><option>License plate frame — $15</option><option>Custom front plate — $15</option><option>Other / custom idea</option></select></div>
+            <div class="field"><label for="quantity">Quantity</label><input id="quantity" name="quantity" type="number" min="1" value="1"></div>
+            <div class="field"><label for="color">Color preference</label><input id="color" name="color" type="text" placeholder="Any color / tell us your shade"></div>
+            <div class="field"><label for="size">Decal size (if applicable)</label><select id="size" name="decal-size"><option value="">Choose a size</option><option>Small — $5</option><option>Medium — $10</option><option>Large — $15</option></select></div>
+            <div class="field full"><label for="details">Describe your design</label><textarea id="details" name="details" placeholder="Tell us the text, theme, colors, or any other details..." required></textarea></div>
+            <div class="field full"><label for="reference">Reference image (optional)</label><input id="reference" name="reference" type="file" accept="image/*"><div class="hint">You can attach a picture or inspiration image.</div></div>
+            <div class="field full"><button class="btn submit" type="submit">Send custom request</button><div class="hint">This is an inquiry, not a paid checkout. We'll confirm the order details with you.</div></div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="about">
+      <div class="wrap about">
+        <div><div class="eyebrow">A little about us</div><h2>Where creativity blooms.</h2><p class="intro">Kitsune Blossom Graphics is all about turning your ideas into something you ABSOLUTELY love. Whether it's a decal, a custom cup, or a detail for your sick ride. Every order starts with your vision and your creativity!</p><p class="intro">Have something in mind that isn't listed? Send a custom request and let's make it happen.</p><a class="btn" href="#custom">Let's create</a></div>
+        <div class="about-mark"><div class="fox">🦊</div><strong>KITSUNE BLOSSOM</strong><span style="font-size:11px;letter-spacing:3px;color:#e8c7d9">GRAPHICS</span><div class="rule"></div><p style="margin:16px 0 0;color:#d9c2d0;font-size:13px">Made to bloom.<br>Built to stand out.</p></div>
+      </div>
+    </section>
+  </main>
+  <footer>© <span id="year"></span> <b>Kitsune Blossom Graphics</b> · Made to bloom. Built to stand out.</footer>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    document.querySelectorAll('[data-product]').forEach(link => link.addEventListener('click', () => {
+      const value = link.dataset.product;
+      const select = document.getElementById('product');
+      const match = [...select.options].find(o => o.text.toLowerCase().startsWith(value.toLowerCase()));
+      if (match) select.value = match.value;
+    }));
+  </script>
+<script>
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('product')) {
+      const productSelect = document.getElementById('product');
+      const productName = params.get('product') || 'Other / custom idea';
+      let option = [...productSelect.options].find(o => o.text.toLowerCase().startsWith(productName.toLowerCase()));
+      if (!option) { option = document.createElement('option'); option.value = productName; option.textContent = productName; productSelect.appendChild(option); }
+      productSelect.value = option.value;
+      const quantity = document.getElementById('quantity'); if (params.get('quantity')) quantity.value = params.get('quantity');
+      const color = document.getElementById('color'); if (params.get('color')) color.value = params.get('color');
+      const size = document.getElementById('size'); if (size && params.get('size')) size.value = params.get('size') + ' — $' + ({Small:5,Medium:10,Large:15}[params.get('size')] || '');
+      const details = document.getElementById('details');
+      const extra = [params.get('size') ? 'Decal size: '+params.get('size') : '', params.get('price') ? 'Displayed price: '+params.get('price') : '', params.get('notes') || ''].filter(Boolean).join('\n');
+      if (extra) details.value = extra;
+      document.getElementById('custom').scrollIntoView({behavior:'smooth'});
+    }
+
+</script>
+</body>
+</html>
